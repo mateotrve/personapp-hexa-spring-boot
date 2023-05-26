@@ -55,7 +55,7 @@ public class PhoneUseCase implements PhoneInputPort{
 
     @Override
     public List<Phone> findAll() {
-        log.info("Output; " + phonePersistence.getClass());
+        log.info("Output: " + phonePersistence.getClass());
         return phonePersistence.find();
     }
 

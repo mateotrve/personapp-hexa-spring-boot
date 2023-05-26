@@ -57,7 +57,7 @@ public class StudyUseCase implements StudyInputPort{
 
     @Override
     public List<Study> findAll() {
-        log.info("Output; "+studyPersistence.getClass());
+        log.info("Output: "+studyPersistence.getClass());
         return studyPersistence.find();
     }
 
