@@ -41,9 +41,7 @@ public class StudyUseCase implements StudyInputPort{
         if(oldStudy != null)
             return studyPersistence.save(study);
 
-        throw new NoExistException("The study with professionID " + professionID +" and personID "+ personID +" does not exist into db, cannot be edited");
-
-
+        throw new NoExistException("The study with professionID " + professionID + " and personID " + personID + " does not exist into db, cannot be edited");
     }
 
     @Override
@@ -52,7 +50,7 @@ public class StudyUseCase implements StudyInputPort{
         if(oldStudy!=null)
             return studyPersistence.delete(professionID, personID);
 
-        throw new NoExistException("The study with professionID " + professionID +" and personID "+ personID +" does not exist into db, cannot be dropped");
+        throw new NoExistException("The study with professionID " + professionID + " and personID " + personID + " does not exist into db, cannot be dropped");
     }
 
     @Override

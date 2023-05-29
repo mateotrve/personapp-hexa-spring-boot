@@ -12,8 +12,8 @@ import co.edu.javeriana.as.personapp.application.port.out.PersonOutputPort;
 import co.edu.javeriana.as.personapp.application.usecase.PersonUseCase;
 import co.edu.javeriana.as.personapp.common.annotations.Adapter;
 import co.edu.javeriana.as.personapp.common.exceptions.InvalidOptionException;
+import co.edu.javeriana.as.personapp.common.exceptions.NoExistException;
 import co.edu.javeriana.as.personapp.common.setup.DatabaseOption;
-import co.edu.javeriana.as.personapp.domain.Gender;
 import co.edu.javeriana.as.personapp.domain.Person;
 import co.edu.javeriana.as.personapp.mapper.PersonaMapperRest;
 import co.edu.javeriana.as.personapp.model.request.PersonaRequest;
@@ -68,14 +68,70 @@ public class PersonaInputAdapterRest {
 
 	public PersonaResponse crearPersona(PersonaRequest request) {
 		try {
-			setPersonOutputPortInjection(request.getDatabase());
+			String database = setPersonOutputPortInjection(request.getDatabase());
 			Person person = personInputPort.create(personaMapperRest.fromAdapterToDomain(request));
-			return personaMapperRest.fromDomainToAdapterRestMaria(person);
+			if(database.equalsIgnoreCase(DatabaseOption.MARIA.toString())){
+				return personaMapperRest.fromDomainToAdapterRestMaria(person);
+			}else {
+				return personaMapperRest.fromDomainToAdapterRestMongo(person);
+			}
 		} catch (InvalidOptionException e) {
 			log.warn(e.getMessage());
-			//return new PersonaResponse("", "", "", "", "", "", "");
+			return new PersonaResponse("", "", "", "", "", "", "");
 		}
-		return null;
+	}
+
+	public PersonaResponse obtenerPersona(String database, Integer id) {
+		log.info("Into obtenerPersona PersonaEntity in Input Adapter");
+		try {
+			if(setPersonOutputPortInjection(database).equalsIgnoreCase(DatabaseOption.MARIA.toString())){
+				return personaMapperRest.fromDomainToAdapterRestMaria(personInputPort.findOne(id));
+			}else {
+				return personaMapperRest.fromDomainToAdapterRestMongo(personInputPort.findOne(id));
+			}
+		} catch (InvalidOptionException e) {
+			log.warn(e.getMessage());
+			return new PersonaResponse("", "", "", "", "", "", "");
+		} catch (NoExistException e) {
+			log.warn(e.getMessage());
+			return new PersonaResponse("", "", "", "", "", "", "");
+		}
+	}
+
+	public PersonaResponse editarPersona(PersonaRequest request) {
+		log.info("Into editarPersona PersonaEntity in Input Adapter");
+		try {
+			String database = setPersonOutputPortInjection(request.getDatabase());
+			Person person = personInputPort.edit(Integer.parseInt(request.getDni()), personaMapperRest.fromAdapterToDomain(request));
+			if(database.equalsIgnoreCase(DatabaseOption.MARIA.toString())){
+				return personaMapperRest.fromDomainToAdapterRestMaria(person);
+			}else {
+				return personaMapperRest.fromDomainToAdapterRestMongo(person);
+			}
+		} catch (InvalidOptionException e) {
+			log.warn(e.getMessage());
+			return new PersonaResponse("", "", "", "", "", "", "");
+		} catch (NumberFormatException e) {
+			log.warn(e.getMessage());
+			return new PersonaResponse("", "", "", "", "", "", "");
+		} catch (NoExistException e) {
+			log.warn(e.getMessage());
+			return new PersonaResponse("", "", "", "", "", "", "");
+		}
+	}
+
+	public Boolean eliminarPersona(String database, Integer id) {
+		log.info("Into eliminarPersona PersonaEntity in Input Adapter");
+		try {
+			setPersonOutputPortInjection(database);
+			return personInputPort.drop(id);
+		} catch (InvalidOptionException e) {
+			log.warn(e.getMessage());
+			return false;
+		} catch (NoExistException e) {
+			log.warn(e.getMessage());
+			return false;
+		}
 	}
 
 }

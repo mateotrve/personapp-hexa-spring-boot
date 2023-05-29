@@ -12,11 +12,19 @@ import co.edu.javeriana.as.personapp.mariadb.entity.EstudiosEntity;
 import co.edu.javeriana.as.personapp.mariadb.entity.EstudiosEntityPK;
 import co.edu.javeriana.as.personapp.mariadb.mapper.EstudiosMapperMaria;
 import co.edu.javeriana.as.personapp.mariadb.repository.EstudiosRepository;
+import co.edu.javeriana.as.personapp.mariadb.repository.PersonaRepositoryMaria;
+import co.edu.javeriana.as.personapp.mariadb.repository.ProfesionRepositoryMaria;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Adapter("studyOutputAdapterMaria")
 public class StudyOutputAdapterMaria implements StudyOutputPort{
+
+    @Autowired
+    private PersonaRepositoryMaria personaRepositoryMaria;
+
+    @Autowired
+    private ProfesionRepositoryMaria profesionRepositoryMaria;
 
     @Autowired
     private EstudiosMapperMaria estudiosMapperMaria;
@@ -28,6 +36,8 @@ public class StudyOutputAdapterMaria implements StudyOutputPort{
     public Study save(Study study) {
         log.debug("Into save on Adapter MariaDB");
 		EstudiosEntity persistedEstudios = estudiosRepository.save(estudiosMapperMaria.fromDomainToAdapter(study));
+        persistedEstudios.setPersona(personaRepositoryMaria.findById(persistedEstudios.getEstudiosPK().getCcPer()).orElseThrow());
+        persistedEstudios.setProfesion(profesionRepositoryMaria.findById(persistedEstudios.getEstudiosPK().getIdProf()).orElseThrow());
 		return estudiosMapperMaria.fromAdapterToDomain(persistedEstudios);
     }
 
